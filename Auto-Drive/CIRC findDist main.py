@@ -115,22 +115,12 @@ if camera =/= 360 deg:
 
 
 
-
 '''
-
-  
-  REFERENCES:
-  1. reading serial from a raspberry pi:
-  i. https://pimylifeup.com/raspberry-pi-serial/
-  ii. https://raspberrypi.stackexchange.com/questions/935/how-do-i-get-the-data-from-the-serial-port
-  iii. https://www.instructables.com/id/Read-and-write-from-serial-port-with-Raspberry-Pi/
- ----------------------------------------------------------------
- 
  ser = serial.Serial('/dev/ttyACM0', 9600)#assigning to port 
  GPSdata=ser.readline()#assigning to variable
 
   if gps is set up uncomment ser and GPSdata change Pt1 to GPSdata
-   '''
+'''
 
 
 
