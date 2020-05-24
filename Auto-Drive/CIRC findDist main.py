@@ -195,7 +195,9 @@ y = int("".join(map(str,MinHypIndex))) #from:https://www.geeksforgeeks.org/pytho
 
 MinHypIndex=y 
 print("method #1: The MinHypIndex is:"+str(MinHypIndex))
+Angle = math.degrees(math.atan(GPS_locations[MinHypIndex][1]/GPS_locations[MinHypIndex][0]))
 
+print("the angle the rover should turn is:" + str(Angle))
 Dist2Location=findDistance.FindDistance(RoverGPSPos[0],RoverGPSPos[1],GPS_locations[MinHypIndex][0],GPS_locations[MinHypIndex][1],GPS_Threshold[0],GPS_Threshold[1])
 
 print("The distance to the closest pt(in cm then m) are:"  + str(Dist2Location))
