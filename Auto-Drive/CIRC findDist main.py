@@ -119,7 +119,7 @@ if camera =/= 360 deg:
  ser = serial.Serial('/dev/ttyACM0', 9600)#assigning to port 
  GPSdata=ser.readline()#assigning to variable
 
-  if gps is set up uncomment ser and GPSdata change Pt1 to GPSdata
+  if gps is set up uncomment ser and GPSdata change RoverGPSPos to GPSdata
 '''
 
 
@@ -190,6 +190,7 @@ print("the smallest hyp value is:"+ str(MinHypVal))# or can use==> np.array(call
 # below from : https://stackoverflow.com/questions/6294179/how-to-find-all-occurrences-of-an-element-in-a-list
 MinHypIndex = np.where(np.array(hypDist)==MinHypVal)[0]
 #x = [ n for n, z in enumerate(hypDist) if z== MinHypVal]
+#since I cant seem to assign index obtained above directly to findDistance function must do the following below: 
 y = int("".join(map(str,MinHypIndex))) #from:https://www.geeksforgeeks.org/python-convert-a-list-of-multiple-integers-into-a-single-integer/
 
 MinHypIndex=y 
