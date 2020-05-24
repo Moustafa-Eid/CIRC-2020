@@ -1,7 +1,5 @@
 #METHOD #1:
-import findAngle
 import findDistance
-import sendArduino
 import socket
 import math
 import numpy as np
@@ -117,25 +115,6 @@ if camera =/= 360 deg:
 
 
 
-#sendArduino:
-'''
-NOTE:
-==> figure out each message for each case,
- sent to determine power given to motors
-
-==> also figure out python code that turns
- PWM signal on, to an arduino
-
-
-message = "100200300400500600"
-UDP_IP = "192.168.1.210"
-UDP_PORT =8090
-# template==> SendArduino(message,UDP_IP,UDP_PORT):
-
-Sock = sendArduino.SendArduino(message,UDP_IP,UDP_PORT)[1]
-SentSockVal = sendArduino.SendArduino(message,UDP_IP,UDP_PORT)[0]
-print("The sent socket value is :" + str(SentSockVal)+ " and the socket is:" + str(Sock))
-'''
 
 '''
 
