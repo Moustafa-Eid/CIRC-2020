@@ -7,7 +7,7 @@ Created on Tue Mar 10 17:27:04 2020
 
 import math
 
-ref = (0,0)                                 # Reference point, ie. Rover's current location
+ref = (0,0)                                 # Reference point
 
 unit = (1,0)
 
