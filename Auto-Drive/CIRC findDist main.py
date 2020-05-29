@@ -160,7 +160,7 @@ print("The sent socket value is :" + str(SentSockVal)+ " and the socket is:" + s
      ser = serial.Serial('/dev/ttyACM0', 9600)#assigning to port 
     GPSdata=ser.readline()#assigning to variable
 
-  if gps is set up uncomment ser and GPSdata change Pt1 to GPSdata
+  if gps is set up uncomment ser and GPSdata change RoverGPSPos to GPSdata
 '''
 
 # Rover gps position:
