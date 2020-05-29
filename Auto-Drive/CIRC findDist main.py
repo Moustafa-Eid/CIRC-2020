@@ -1,9 +1,14 @@
-#METHOD #1:
+#import findAngle
 import findDistance
+#import sendArduino
 import socket
 import math
 import numpy as np
 import serial
+import pandas as pd
+#import geopandas as gpdcd 
+import matplotlib.pyplot as plt 
+#import picket 
 
 '''
 -------psudocode==> alternate method ==> METHOD#2:----------
@@ -115,18 +120,48 @@ if camera =/= 360 deg:
 
 
 
+#sendArduino:
 '''
- ser = serial.Serial('/dev/ttyACM0', 9600)#assigning to port 
- GPSdata=ser.readline()#assigning to variable
+NOTE:
+==> figure out each message for each case,
+ sent to determine power given to motors
 
-  if gps is set up uncomment ser and GPSdata change RoverGPSPos to GPSdata
+==> also figure out python code that turns
+ PWM signal on, to an arduino
+
+
+message = "100200300400500600"
+UDP_IP = "192.168.1.210"
+UDP_PORT =8090
+# template==> SendArduino(message,UDP_IP,UDP_PORT):
+
+Sock = sendArduino.SendArduino(message,UDP_IP,UDP_PORT)[1]
+SentSockVal = sendArduino.SendArduino(message,UDP_IP,UDP_PORT)[0]
+print("The sent socket value is :" + str(SentSockVal)+ " and the socket is:" + str(Sock))
 '''
 
+'''
+
+  
+  REFERENCES:
+  1. reading serial from a raspberry pi:
+  i. https://pimylifeup.com/raspberry-pi-serial/
+  ii. https://raspberrypi.stackexchange.com/questions/935/how-do-i-get-the-data-from-the-serial-port
+  iii. https://www.instructables.com/id/Read-and-write-from-serial-port-with-Raspberry-Pi/
+ ----------------------------------------------------------------
+ '''
+ 
 
 
 
 
-# my own method #1: finding the shortest path: 
+#------------------------- my own method #1: finding the shortest path: 
+'''
+     ser = serial.Serial('/dev/ttyACM0', 9600)#assigning to port 
+    GPSdata=ser.readline()#assigning to variable
+
+  if gps is set up uncomment ser and GPSdata change Pt1 to GPSdata
+'''
 
 # Rover gps position:
 RoverGPSPos = [0,0]
@@ -158,7 +193,6 @@ GPS_locations.append(GPS5)
 GPS_locations.append(GPS6)
 
 
-GPS_Threshold = [1.5,3.3]# [lat,long]
 
 
 
@@ -184,32 +218,133 @@ GPSlocations_Long= [item[1] for item in GPS_locations]
 hypDist= np.sqrt(np.array(((np.array(GPSlocations_Lat)-RoverGPSPos[0])**2)) + np.array(((np.array(GPSlocations_Long)-RoverGPSPos[1])**2))) 
 # cant use math.sqrt() for an array so use np.sqrt()
 # below from: https://www.geeksforgeeks.org/numpy-sqrt-in-python/
+
+
+#-----------------------Adding the Radiation Aspect:
+
+'''
+    Psudocode:
+    1. option 1: create a ranking system
+    for most ideal/shortest method updated with fixed arbitrary Radiation values for now,
+    (then sort the updated distances(updated means w/ radiation pts) from shortest to longest )
+    
+    2. option 2:  Add radiation locations, and tell rover to change path to move around it
+ 
+'''
+RadPt1 = [0,0]
+RadPt2 = [2,32]
+
+RadiationPts = []
+
+RadiationPts.append(RadPt1)
+RadiationPts.append(RadPt2)
+
+RadArray = np.array([RadiationPts]) 
+
+RadThreshold = 60
+
+Radiation = [RadArray + [-RadThreshold,RadThreshold], RadArray + [ RadThreshold,RadThreshold], RadArray + [-RadThreshold,-RadThreshold], RadArray + [RadThreshold,-RadThreshold]] #template is: [TopLeft,TopRight,BottomLeft,BottomRight]
+print("The radiation bounds are:" + str(Radiation) +"\n")
+
+#------figure out how to apply this for all possibilities==> if pt is top right/left or bottom right/left of rover for example. -------?
+
+#my own method:
+'''
+#if gps location is top right of rover:
+#for count in range(0,len(GPSlocations_Lat)):
+if (((np.any(Radiation[0][0] >= RoverGPSPos[0]) and (np.any(Radiation[0][0]<= GPSlocations_Lat ))) and ((np.any(Radiation[0][1] >= RoverGPSPos[1]) )and (np.any(Radiation[0][1]<= GPSlocations_Long ))))):
+       hypDist = np.array(hypDist) + RadThreshold
+       print("hyp values with radiation included are:" + str(hypDist))
+'''
+#trying to use picket library:
+
+
+
+
+#trying to use geopandas library:
+
+
+#other methods:
+'''
+from: 
+1.
+i. https://stackoverflow.com/questions/42686300/how-to-check-if-coordinate-inside-certain-area-python
+ii. https://stackoverflow.com/questions/4913349/haversine-formula-in-python-bearing-and-distance-between-two-gps-points
+
+2.https://stackoverflow.com/questions/43892459/check-if-geo-point-is-inside-or-outside-of-polygon
+
+3.https://automating-gis-processes.github.io/2017/lessons/L3/point-in-polygon.html
+
+4. what is geofencing and other info: https://developer.tomtom.com/blog/decoded/what-geofencing
+5. https://stackoverflow.com/questions/45570618/is-it-possible-to-fit-a-coordinate-to-a-street-in-osmnx
+
+'''
+
+
+
+# method from ref-2:
+
+
+# method from ref-3:
+
+
+#tangent method:(if geofence is tangent to hypDist(lat,and long portions)+Threshold):
+RadThreshold2 = 15
+i=0
+for count in range(0,len(GPS_locations)):
+    RADArray2 = abs(Radiation-abs(np.array([GPSlocations_Lat[count],GPSlocations_Long[count]])-np.array(RoverGPSPos)))
+    print("The radiation pts are: \n" + str(RADArray2)+ "\n"+"\n [lat,long] units apart from rover path")
+    
+    if np.any(RADArray2 <=RadThreshold2):
+        i = i+1
+        print("# of occurance:" + str(i) + " , GPS location is near radiation area " + "  , The GPS cpprdinate where this occurs is GPS#" + str(count) + " and gps value of:"+str([GPSlocations_Lat[count],GPSlocations_Long[count]]) + '\n')
+        #get index of gps pt thats close to radiation area:
+       
+        #RadIndex = np.where(np.array(RADArray2)<=RadThreshold2)
+
+        #RadIndex = int("".join(map(str,RadIndex))) #from:https://www.geeksforgeeks.org/python-convert-a-list-of-multiple-integers-into-a-single-integer/
+
+        
+        #feed that into RADIATION array, then add some distance to hypDist: 
+        
+        hypDist = hypDist + RadThreshold + RadThreshold # adding Radiations, lat component("RadThreshold") and long component
+        print("The adjusted distance for GPS# " + str(count) + "  is:" + str(hypDist)+"\n")
+    else:
+        print('GPS location is not near radiation area \n')
+
+#-----------------------------------------------------------------------
+
 print("The hypotenuse values (in sqrt(lat and long coordinates) ) are:" +str(hypDist))
 MinHypVal = np.min(hypDist)
 print("the smallest hyp value is:"+ str(MinHypVal))# or can use==> np.array(call array).min()
 # below from : https://stackoverflow.com/questions/6294179/how-to-find-all-occurrences-of-an-element-in-a-list
 MinHypIndex = np.where(np.array(hypDist)==MinHypVal)[0]
 #x = [ n for n, z in enumerate(hypDist) if z== MinHypVal]
-#since I cant seem to assign index obtained above directly to findDistance function must do the following below: 
 y = int("".join(map(str,MinHypIndex))) #from:https://www.geeksforgeeks.org/python-convert-a-list-of-multiple-integers-into-a-single-integer/
 
 MinHypIndex=y 
 print("method #1: The MinHypIndex is:"+str(MinHypIndex))
+
 Angle = math.degrees(math.atan(GPS_locations[MinHypIndex][1]/GPS_locations[MinHypIndex][0]))
 
-print("the angle the rover should turn is:" + str(Angle))
-Dist2Location=findDistance.FindDistance(RoverGPSPos[0],RoverGPSPos[1],GPS_locations[MinHypIndex][0],GPS_locations[MinHypIndex][1],GPS_Threshold[0],GPS_Threshold[1])
+print("the angle the rover should turn is: " +  str(Angle)+ " degrees")
+
+Dist2Location=findDistance.FindDistance(RoverGPSPos[0],RoverGPSPos[1],GPS_locations[MinHypIndex][0],GPS_locations[MinHypIndex][1])
 
 print("The distance to the closest pt(in cm then m) are:"  + str(Dist2Location))
 
-# my own method option #2: using the findDistance function inputting all gps coordinates, then find min dist:
-'''Dist=[]
-Dist1=findDistance.FindDistance(RoverGPSPos[0],RoverGPSPos[1],GPS_locations[0][0],GPS_locations[0][1],GPS_Threshold[0],GPS_Threshold[1])
-Dist2=findDistance.FindDistance(RoverGPSPos[0],RoverGPSPos[1],GPS_locations[1][0],GPS_locations[1][1],GPS_Threshold[0],GPS_Threshold[1])
-Dist3=findDistance.FindDistance(RoverGPSPos[0],RoverGPSPos[1],GPS_locations[2][0],GPS_locations[2][1],GPS_Threshold[0],GPS_Threshold[1])
-Dist4=findDistance.FindDistance(RoverGPSPos[0],RoverGPSPos[1],GPS_locations[3][0],GPS_locations[3][1],GPS_Threshold[0],GPS_Threshold[1])
-Dist5=findDistance.FindDistance(RoverGPSPos[0],RoverGPSPos[1],GPS_locations[4][0],GPS_locations[4][1],GPS_Threshold[0],GPS_Threshold[1])
-Dist6=findDistance.FindDistance(RoverGPSPos[0],RoverGPSPos[1],GPS_locations[5][0],GPS_locations[5][1],GPS_Threshold[0],GPS_Threshold[1])
+#----------------- note see if using geopy is faster than numpy ------------------?
+
+'''
+#Creating a distance array: 
+
+Dist=[]
+Dist1=findDistance.FindDistance(RoverGPSPos[0],RoverGPSPos[1],GPS_locations[0][0],GPS_locations[0][1])
+Dist2=findDistance.FindDistance(RoverGPSPos[0],RoverGPSPos[1],GPS_locations[1][0],GPS_locations[1][1])
+Dist3=findDistance.FindDistance(RoverGPSPos[0],RoverGPSPos[1],GPS_locations[2][0],GPS_locations[2][1])
+Dist4=findDistance.FindDistance(RoverGPSPos[0],RoverGPSPos[1],GPS_locations[3][0],GPS_locations[3][1])
+Dist5=findDistance.FindDistance(RoverGPSPos[0],RoverGPSPos[1],GPS_locations[4][0],GPS_locations[4][1])
+Dist6=findDistance.FindDistance(RoverGPSPos[0],RoverGPSPos[1],GPS_locations[5][0],GPS_locations[5][1])
 #appending:
 Dist.append(Dist1)
 Dist.append(Dist2)
@@ -217,19 +352,64 @@ Dist.append(Dist3)
 Dist.append(Dist4)
 Dist.append(Dist5)
 Dist.append(Dist6)
-print("my method #2: The distances (in cm then m) are: "+str(Dist))
-#finding min val: 
-minDistval = np.min(Dist)
-print("method #2: the min dist (in m) is: " + str(minDistval))
+print("All the distances from the rover to location 1,2,3,etc. (in cm then m) are: "+str(Dist))
 '''
-#optional==> deleting gps coordinates out of the array if rover reaches them( basically similar to a checklist):
 
-# my own method #3: using a node type method (further develop from method#1) 
+
+#---------------------------Geofencing:
+'''
+References:
+geopy library: https://geopy.readthedocs.io/en/stable/#module-geopy.distance
+1. my own method: (making another array adding a threshold to each GPS point)
+
+2. picket library:
+https://github.com/sam-drew/picket
+
+NOTE: i could use geopandas library it would make things 1000% easier but
+theres a problem with my anaconda environment 
+
+'''
+#my own method:
+Threshold = 5
+#the current GeoFence pt is at the pt where the shortest path is(ie the pt where the rover is currently headed towards): 
+
+HeadedLocation = np.array([GPS_locations[MinHypIndex][0],GPS_locations[MinHypIndex][1]])
+                          
+CurrentGeoFencePts = [HeadedLocation + [-Threshold,Threshold], HeadedLocation + [ Threshold,Threshold], HeadedLocation + [-Threshold,-Threshold], HeadedLocation + [Threshold,-Threshold]] #template is: [TopLeft,TopRight,BottomLeft,BottomRight]
+
+print("The geofence boundary for the current gps location is a square and is at the following points:" + str(CurrentGeoFencePts))
+
+#
+
+if ((RoverGPSPos[0]>= CurrentGeoFencePts[1][0] and RoverGPSPos[0] <=CurrentGeoFencePts[0][0]) and (RoverGPSPos[1] >=CurrentGeoFencePts[2][1] and RoverGPSPos[1]<=CurrentGeoFencePts[1][1] )):
+    print("Rover shall stop")
+    '''
+    ------------INSERT COMMANDS TO MAKE ROVER DRIVE AROUND THE BORDER HERE:---------------------
+    
+    '''
+    #optional==> deleting gps coordinates out of the array if rover reaches them( basically similar to a checklist):
+
+else:
+    print("Rover shall keep going") 
+
+
+#using the above reference #2(picket library:
+
+
+# ----------------------------------------------- Figuring out how often the rover is going to read the serial data/ how often are we going to send the serial data: 
+
+
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+
+
+
+#--------------------------my own method #2: using a node type method (further develop from method#1) 
 '''
 basically use method #2's idea but add more gps pts shortening the dist betw. each pt/node. Each pt or node
 will be within the bounds of the end gps location goal (basically each small node paves a pathway fro the rover to go until end goal is reached) 
 '''
 
 
-#method #4: using path finding algorithms/known node methods: 
+#-------------------------method #3: using path finding algorithms/known node methods: 
 
